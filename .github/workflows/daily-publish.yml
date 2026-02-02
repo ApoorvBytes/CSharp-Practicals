@@ -1,0 +1,34 @@
+name: Daily Practical Publish
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Publish one practical
+        run: |
+          FILE=$(ls practicals | head -n 1)
+
+          if [ -z "$FILE" ]; then
+            echo "No files left"
+            exit 0
+          fi
+
+          mv practicals/$FILE published/$FILE
+
+          git add .
+          git commit -m "Daily Practical: $FILE"
+          git push
